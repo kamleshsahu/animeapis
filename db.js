@@ -1,6 +1,6 @@
 export default {
   SCHEMA: {
-    "BUSINESS": "local"
+    "BUSINESS": "business"
   },
   COLLECTION: {
     "ANIME": "anime",
