@@ -65,11 +65,8 @@ export const getEpisodeLink = async (episodeId) => {
 
 export const searchByPhrase = async (params) => {
   const { searchString, pageSize = 10, nextKey } = params;
-  const query = { $text: { $search: searchString } }
-  const sort = {
-    releasedDate: -1,
-    id: 1
-  };
+  const query = { $text: { $search: searchString } };
+  const sort = { score: { $meta: "textScore" } };
   if (nextKey) {
     query._id = { $gt: new ObjectId(nextKey) }
   }
@@ -79,6 +76,7 @@ export const searchByPhrase = async (params) => {
     .sort(sort)
     .project({
       episodesList: false,
+      score:1
     })
     .limit(pageSize)
     .toArray();

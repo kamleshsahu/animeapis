@@ -4,8 +4,8 @@ import {filterAnime, getAnimeById, getEpisodeLink, searchByPhrase} from "../serv
 const router = new Router();
 
 router.get('/filter', async (req, res, next) => {
-  const { genre, releaseYear, type, status, pageSize, nextKey } = req.query || {};
-
+  let { genre, releaseYear, type, status, pageSize, nextKey } = req.query || {};
+  if (pageSize) pageSize = Number(pageSize);
   try {
     const response = await filterAnime({ genre, releaseYear, type, status, pageSize, nextKey });
     if (response) {
@@ -55,8 +55,8 @@ router.get('/:animeId', async (req, res, next) => {
 
 router.get('/search/:searchString', async (req, res, next) => {
   const { searchString } = req.params || {};
-  const { pageSize, nextKey } = req.query || {}
-
+  let { pageSize, nextKey } = req.query || {}
+  if (pageSize) pageSize = Number(pageSize);
   try {
     const response = await searchByPhrase({ searchString, pageSize, nextKey });
     if (response) {
