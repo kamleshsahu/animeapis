@@ -76,7 +76,7 @@ export const searchByPhrase = async (params) => {
     .sort(sort)
     .project({
       episodesList: false,
-      score:1
+      score: { $meta: "textScore" }
     })
     .limit(pageSize)
     .toArray();
