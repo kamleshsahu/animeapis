@@ -1,10 +1,15 @@
 import express from 'express';
+import cors from 'cors';
 import {MongoClient} from 'mongodb';
 import config from "./config.js";
 import anime from "./controller/anime.js";
 
 const app = express();
 const port = process.env.PORT || 8000;
+
+app.use(cors({
+  origin: '*'
+}));
 
 app.use('/anime', anime);
 
