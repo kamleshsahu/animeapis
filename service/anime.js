@@ -64,26 +64,60 @@ export const getEpisodeLink = async (episodeId) => {
 
 
 export const searchByPhrase = async (params) => {
-  const { searchString, pageSize = 10, nextKey } = params;
-  const query = { $text: { $search: searchString } };
-  const sort = { score: { $meta: "textScore" } };
-  if (nextKey) {
-    query._id = { $gt: new ObjectId(nextKey) }
-  }
+  const { searchString, pageSize = 10 } = params;
+
+  const pipeline = [
+    {
+      $search: {
+        index: "animesearch",
+        compound: {
+          should: [
+            {
+              phrase: {
+                query: searchString,
+                path: "animeTitle",
+              },
+            },
+            {
+              phrase: {
+                query: searchString,
+                path: "otherNames",
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      $addFields: {
+        length: {
+          $min: [
+            {
+              $strLenCP: "$animeTitle",
+            },
+            {
+              $strLenCP: "$otherNames",
+            },
+          ],
+        },
+      },
+    },
+    {
+      $sort: {
+        length: 1, // Sort in ascending order (shortest string first)
+      },
+    },
+    {
+      $limit: pageSize,
+    },
+  ]
   const db = getDB(DB.SCHEMA.BUSINESS);
-  const animeList = await db.collection(DB.COLLECTION.ANIME)
-    .find(query)
-    .sort(sort)
+  const animeList = await db.collection(DB.COLLECTION.ANIME).aggregate(pipeline)
     .project({
-      episodesList: false,
-      score: { $meta: "textScore" }
+      episodesList: false
     })
-    .limit(pageSize)
     .toArray();
 
   const response = { animeList }
-  if (animeList && animeList.length === pageSize) {
-    response.nextKey = animeList[animeList.length - 1]._id.toHexString();
-  }
   return response;
 };
