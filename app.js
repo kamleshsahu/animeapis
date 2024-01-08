@@ -3,6 +3,8 @@ import cors from 'cors';
 import {MongoClient} from 'mongodb';
 import config from "./config.js";
 import anime from "./controller/anime.js";
+import {getMongoClient} from "./helpers/mongo.js";
+import {initUrls} from "./initUrls.js";
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -17,10 +19,18 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 });
 
-MongoClient.connect(config.database.url)
+getMongoClient()
   .catch(err => console.error(err.stack))
-  .then(db => {
+  .then(async db => {
     app.locals.db = db;
+
+    try {
+      await initUrls();
+    } catch (err) {
+      console.log("Err while init url:");
+      console.log(err);
+    }
+
     app.listen(port, () => {
       console.log(`Node.js app is listening at http://localhost:${port}`);
     });

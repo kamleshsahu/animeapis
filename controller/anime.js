@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import {filterAnime, getAnimeById, getEpisodeLink, searchByPhrase} from "../service/anime.js";
+import process1Episode from "../service/process1Episode.js";
 
 const router = new Router();
 
@@ -22,9 +23,12 @@ router.get('/filter', async (req, res, next) => {
 
 router.get('/episode/:episodeId', async (req, res, next) => {
   const { episodeId } = req.params || {};
-
+  const { refreshLink } = req.query || {};
   try {
-    const episode = await getEpisodeLink(episodeId);
+    // if (refreshLink === "true") {
+    //   await process1Episode([, , episodeId]);
+    // }
+    const episode = await getEpisodeLink(episodeId, refreshLink === true);
     if (episode) {
       res.send(episode);
     } else {

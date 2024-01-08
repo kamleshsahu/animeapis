@@ -2,6 +2,8 @@ import {getDB} from '../app.js'
 import DB from '../db.js';
 import {ObjectId} from "mongodb";
 import {inCond, orCond} from "../common/util.js";
+import axios from "axios";
+import process1Episode from "./process1Episode.js";
 
 export const getAnimeById = async (id) => {
   const db = getDB(DB.SCHEMA.BUSINESS);
@@ -56,10 +58,37 @@ export const filterAnime = async (params) => {
   return response;
 };
 
-export const getEpisodeLink = async (episodeId) => {
+export const getEpisodeLink = async (episodeId, refreshLink) => {
   const db = getDB(DB.SCHEMA.BUSINESS);
-  const episode = await db.collection(DB.COLLECTION.EPISODE).findOne({ episodeId });
-  return episode;
+  let episode = await db.collection(DB.COLLECTION.EPISODE).findOne({ episodeId });
+
+  // if (refreshLink) {
+    return await isEpisodeWorking(episode);
+  // }
+
+  // return episode;
+};
+
+const isEpisodeWorking = async (episode) => {
+  const db = getDB(DB.SCHEMA.BUSINESS);
+  const { m3u8: { sources: [fileObj, ...otherfiles] = [] } = {} } = episode;
+  try {
+    if (fileObj) {
+      const resp = await axios.get(fileObj.file);
+    }
+    return episode;
+  } catch (err) {
+    const { response: { status } = {} } = err;
+    if (status === 523 || status === 404 || status === 410) {
+      try {
+        await process1Episode([, , episode.episodeId, ,]);
+        return await db.collection(DB.COLLECTION.EPISODE).findOne({ episodeId: episode.episodeId });
+      } catch (err) {
+        throw err;
+      }
+    }
+    throw err;
+  }
 };
 
 
