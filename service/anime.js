@@ -79,7 +79,7 @@ const isEpisodeWorking = async (episode) => {
     return episode;
   } catch (err) {
     const { response: { status } = {} } = err;
-    if (status === 523 || status === 404 || status === 410) {
+    if (status >= 400 && status <= 599) {
       try {
         await process1Episode([, , episode.episodeId, ,]);
         return await db.collection(DB.COLLECTION.EPISODE).findOne({ episodeId: episode.episodeId });
