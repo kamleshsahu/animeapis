@@ -1,5 +1,4 @@
 import { MongoClient } from 'mongodb';
-import config from '../config.js';
 export let mongoClient;
 
 async function init() {
@@ -7,9 +6,9 @@ async function init() {
   * Connection URI. Update <username>, <password>, and <your-cluster-url> to reflect your cluster.
   * See https://docs.mongodb.com/ecosystem/drivers/node/ for more details
   */
- const uri = config.database.url;
+ const uri = process.env.MONGO;
 
-
+ console.log("Mongo URI:", uri);
  const client = new MongoClient(uri);
 
  try {
