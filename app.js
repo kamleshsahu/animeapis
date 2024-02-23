@@ -1,7 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import {MongoClient} from 'mongodb';
-import config from "./config.js";
 import anime from "./controller/anime.js";
 import {getMongoClient} from "./helpers/mongo.js";
 import {initUrls} from "./initUrls.js";
